@@ -3,7 +3,7 @@ from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="[ [%(asctime)s] : %(name)s : %(levelname)s : %(module)s : %(message)s ]")
 
-Project_Name = "flask-blog"
+Project_Name = "flaskblog"
 
 list_of_files = [
     f"src/{Project_Name}/errors/__init__.py",
