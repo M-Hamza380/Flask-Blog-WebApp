@@ -1,16 +1,23 @@
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager
 
 from src.flaskblog.users import logger
 
+app = Flask(__name__)
+
 db = SQLAlchemy()
 DB_NAME = './sql-alchemy/database.db'
+bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
+login_manager.login_view = "auth.login"
+login_manager.login_message_category = 'info'
 
 def create_app():
     try:
         logger.info('Enter into create_app function to create flask app.')
-        app = Flask(__name__)
 
         # Kind of Encrpt or secure the cookies or seesion data related to our website.
         app.config['SECRET_KEY'] = "Zain-Ul-Hassan"

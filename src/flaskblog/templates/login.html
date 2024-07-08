@@ -7,7 +7,7 @@
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Enter to your  account</legend>
+                <legend class="border-bottom mb-4">Enter to your account details</legend>
                     <div class="form-group">
                         {{ form.email.label(class="form-control-label") }}
                         
@@ -29,10 +29,10 @@
                         {{ form.password.label(class="form-control-label") }}
                         
                         {% if form.password.errors %}
-                            {{ from.password(class='form-control form-control-lg is-invalid') }}
+                            {{ form.password(class='form-control form-control-lg is-invalid') }}
                             <div class="invalid-feedback">
                                 
-                                {% for  in  %}
+                                {% for error in form.password.errors %}
                                     <span>{{ error }}</span>
                                 {% endfor %}
                                     
@@ -43,7 +43,7 @@
                     </div>
                     <div class="form-check">
                         {{ form.remember(class='form-check-input') }}
-                        {{ from.remember.label(class='form-check-label') }}
+                        {{ form.remember.label(class='form-check-label') }}
                     </div>
             </fieldset>
             <div class="form-group">
