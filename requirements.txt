@@ -5,3 +5,4 @@ flask-wtf
 email_validator
 flask-bcrypt
 Pillow
+flask-mail
