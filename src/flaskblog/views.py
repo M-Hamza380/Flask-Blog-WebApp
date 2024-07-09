@@ -4,9 +4,12 @@ views = Blueprint('views', __name__)
 
 @views.route('/')
 def home():
-    return render_template('home.html')
+    try:
+        return render_template('home.html')
+    except Exception as e:
+        # Handle the exception appropriately
+        # For example, you can log the exception or return an error page
+        # Here, we'll just raise it again to propagate the exception
+        raise e
 
-@views.route('/account')
-def account():
-    return render_template('account.html')
 
