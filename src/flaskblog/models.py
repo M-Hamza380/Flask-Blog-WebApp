@@ -10,7 +10,7 @@ def user_load(user_id):
 
 @login_manager.unauthorized_handler
 def unauthorized():
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('users.login'))
 
 
 class User(db.Model, UserMixin):

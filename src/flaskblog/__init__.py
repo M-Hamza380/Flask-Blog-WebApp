@@ -45,7 +45,7 @@ def create_app(config_class=Config):
 def create_database(app, config_class=Config):
     try:
         logger.info('Enter into create_database function and create the database.')
-        db_path = os.path.abspath(config_class.DB_NAME)
+        db_path = os.path.abspath(config_class.DB_PATH)
         db_dir = os.path.dirname(db_path)
 
         if not os.path.exists(db_dir):
@@ -58,9 +58,6 @@ def create_database(app, config_class=Config):
                 logger.info(f'Database created at: {db_path}')
         else:
             logger.info(f'Database already exists at: {db_path}')
-    except FileNotFoundError as e:
-        logger.error(f'File not found: {e}')
-        raise
     except Exception as e:
         logger.error(f'An error occurred while creating the database: {e}')
         raise
