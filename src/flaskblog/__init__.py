@@ -50,7 +50,7 @@ def create_database(app, config_class=Config):
 
         if not os.path.exists(db_dir):
             os.makedirs(db_dir, exist_ok=True)
-            logger.info(f'Created directory for database: {db_dir}')
+            logger.info(f'Created directory for database at: {db_dir}')
         
         if not os.path.exists(db_path):
             with app.app_context():

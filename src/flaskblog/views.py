@@ -17,3 +17,7 @@ def home():
 def about():
     return render_template('about.html', title='About')
 
+
+@views.route('/users_dashboard')
+def dashboard():
+    return render_template('dashboard.html', title='Dashboard')
