@@ -1,6 +1,7 @@
 from flask import url_for, redirect
 from flask_login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from flask_admin.contrib.sqla import ModelView
 
 from src.flaskblog import db, login_manager, app
 
@@ -39,4 +40,21 @@ class User(db.Model, UserMixin):
     
     def __repr__(self) -> str:
         return f"User: ('{self.username}', '{self.email}', '{self.image_file}')"
+
+class Role(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), unique=True, nullable=False)
+
+    def __repr__(self) -> str:
+        return f"Role: ('{self.name}')"
+
+class UserAdmin(ModelView):
+    column_list = ('id', 'username', 'email', 'image_file')
+    column_searchable_list = ('username', 'email')
+    column_filters = ('username', 'email')
+    form_excluded_columns = ('password',)
+
+class RoleAdmin(ModelView):
+    column_list = ('id', 'name')
+    form_excluded_columns = ('users',)
 

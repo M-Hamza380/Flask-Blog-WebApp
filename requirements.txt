@@ -8,3 +8,4 @@ Pillow
 flask-mail
 itsdangerous==2.0.1
 python-dotenv
+flask-admin

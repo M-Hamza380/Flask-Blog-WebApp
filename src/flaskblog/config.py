@@ -1,7 +1,10 @@
 import os
+from dotenv import dotenv_values
+
+config = dotenv_values(".env")
 
 class Config:
-    SECRET_KEY = "ZainX"
+    SECRET_KEY = config.get("SECRET_KEY")
     DB_PATH = "site.db"
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{DB_PATH}"
     MAIL_SERVER = 'smtp.googlemail.com'

@@ -21,3 +21,7 @@ def about():
 @views.route('/users_dashboard')
 def dashboard():
     return render_template('dashboard.html', title='Dashboard')
+
+@views.route('/admin-panel')
+def admin_panel():
+    return render_template('admin.html', title='Admin')
