@@ -5,10 +5,15 @@ from src.flaskblog import db, bcrypt
 from src.flaskblog.users.utils import save_picture, send_reset_email
 from src.flaskblog.models import User
 from src.flaskblog.users.forms import (LoginForm, RegistrationForm, UpdateAccountForm, 
-                                       RequestResetForm, ResetPasswordForm)
+                                       RequestResetForm, ResetPasswordForm, ChangePasswordForm)
 
 
 users = Blueprint('users', __name__)
+
+
+@users.route('/admin-panel', methods=['GET', 'POST'])
+def admin_login():
+    return render_template('admin/admin_login.html')
 
 
 @users.route("/register", methods=['GET', 'POST'])
@@ -125,3 +130,19 @@ def reset_token(token):
         return redirect(url_for('users.login'))
     return render_template('reset_token.html', title='Reset Password', form=form)
 
+@users.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    if not current_user.is_authenticated:
+        return redirect(url_for('users.login'))
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if not bcrypt.check_password_hash(current_user.password, form.old_password.data):
+            flash('Incorrect old password', category='error')
+            return redirect(url_for('users.change_password'))
+        hashed_password = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
+        current_user.password = hashed_password
+        db.session.commit()
+        flash('Your password has been updated! You are now able to login.', category='success')
+        return redirect(url_for('users.login'))
+    return render_template('change_password.html', title='Change Password', form=form)
