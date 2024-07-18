@@ -73,3 +73,19 @@ class ChangePasswordForm(FlaskForm):
     confirm_new_password = PasswordField('Confirm New Password', validators=[DataRequired(), Length(min=8, max=18), EqualTo('new_password')])
 
     submit = SubmitField('Change Password')
+
+class AdminLoginForm(FlaskForm):
+    admin_email = StringField('Admin Email', validators=[DataRequired(), Email()])
+    admin_password = PasswordField('Admin Password', validators=[DataRequired(), Length(min=8, max=18)])
+    submit = SubmitField('Login')
+
+class UpdateAdminAccountForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
+    submit = SubmitField('Update')
+    
+    def validation_email(self, email):
+        if email.data != current_user.email:
+            user = User.query.filter_by(email=email.data).first()
+            if user:
+                raise ValidationError('That email is taken. Please choose a different one.')

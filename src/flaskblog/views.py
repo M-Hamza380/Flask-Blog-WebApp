@@ -22,3 +22,10 @@ def about():
 def dashboard():
     return render_template('dashboard.html', title='Dashboard')
 
+@views.route('/admin-home')
+def admin_home():
+    return render_template('admin/home.html', title='Admin Home')
+
+@views.route('/admin-dashboard')
+def admin_dashboard():
+    return render_template('admin/admin_dashboard.html', title='Admin Dashboard')
