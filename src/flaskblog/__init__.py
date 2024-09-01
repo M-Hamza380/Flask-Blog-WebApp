@@ -4,8 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
-from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
 
 from src.flaskblog.users.logger import logger
 from src.flaskblog.config import Config
@@ -18,7 +16,6 @@ login_manager = LoginManager()
 login_manager.login_view = "users.login"
 login_manager.login_message_category = 'info'
 mail = Mail()
-admin = Admin(app, name='Admin-Panel', template_mode='bootstrap4')
 
 
 def create_app(config_class=Config):
@@ -34,15 +31,10 @@ def create_app(config_class=Config):
 
         with app.app_context():
             from .views import views
-            from .models import User, Role, UserAdmin, RoleAdmin
             from src.flaskblog.users.routes import users
 
             app.register_blueprint(views, url_prefix='/')
             app.register_blueprint(users, url_prefix='/')
-        
-            # Register the models with Flask-Admin
-            admin.add_view(UserAdmin(User, db.session))
-            admin.add_view(RoleAdmin(Role, db.session))
 
         logger.info('Exited into create_app function the app is successfully created.')
         return app
@@ -58,7 +50,7 @@ def create_database(app, config_class=Config):
 
         if not os.path.exists(db_dir):
             os.makedirs(db_dir, exist_ok=True)
-            logger.info(f'Created directory for database at: {db_dir}')
+            logger.info(f'Created directory for database: {db_dir}')
         
         if not os.path.exists(db_path):
             with app.app_context():

@@ -1,7 +1,7 @@
 from flask import url_for, redirect
 from flask_login import UserMixin
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask_admin.contrib.sqla import ModelView
+from itsdangerous import URLSafeTimedSerializer as Serializer
 
 from src.flaskblog import db, login_manager, app
 
@@ -15,12 +15,13 @@ def unauthorized():
 
 
 class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(30), unique=True, nullable=False)
     email = db.Column(db.String(90), unique=True, nullable=False)
     image_file = db.Column(db.String(90), nullable=False, default='default.jpg')
     password = db.Column(db.String(90), nullable=False)
-
 
     def get_reset_token(self, expires_sec=300):
         secret_key = app.config.get('SECRET_KEY')
@@ -39,7 +40,7 @@ class User(db.Model, UserMixin):
         return User.query.get(user_id)
     
     def __repr__(self) -> str:
-        return f"User: ('{self.username}', '{self.email}', '{self.image_file}')"
+        return f"User: ('{self.username}', '{self.email}')"
 
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -49,12 +50,12 @@ class Role(db.Model):
         return f"Role: ('{self.name}')"
 
 class UserAdmin(ModelView):
-    column_list = ('id', 'username', 'email', 'image_file')
-    column_searchable_list = ('username', 'email')
+    column_list = ('id', 'username', 'email', 'image_file', 'earned_coins', 'purchased_coins', 'total_coins', 'role', )
+    column_searchable_list = ('username', 'email', 'books', 'role')
     column_filters = ('username', 'email')
     form_excluded_columns = ('password',)
 
 class RoleAdmin(ModelView):
     column_list = ('id', 'name')
-    form_excluded_columns = ('users',)
+    form_excluded_columns = ('users',)  
 
