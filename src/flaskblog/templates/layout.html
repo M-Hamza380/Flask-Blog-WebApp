@@ -15,8 +15,13 @@
      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
      crossorigin="anonymous"
      />
-
-    <title>{% block title %}Flask App{% endblock title %}</title>
+     
+    {% if title %}
+        <title>Flask App - {{ title }}</title>
+    {% else %}
+        <title>Flask App</title>
+    {% endif %}
+      
 </head>
 <body>
     {% if current_user is defined %}
