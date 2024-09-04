@@ -25,19 +25,20 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(90), nullable=False)
     posts = db.relationship('Post', backref='author', lazy=True)
 
-    def get_reset_token(self, expires_sec=300):
+    def get_reset_token(self):
         secret_key = app.config.get('SECRET_KEY')
-        if secret_key is None:
-            raise ValueError('SECRET_KEY is not set in app.config')
-        s = Serializer(secret_key, expires_sec)
-        return s.dumps({'user_id': self.id}).decode('utf-8')
+        if not isinstance(secret_key, str):
+            raise ValueError('SECRET_KEY should be a string')
+        s = Serializer(secret_key)
+        return s.dumps({'user_id': self.id}, salt=app.config['SECURITY_PASSWORD_SALT'])
 
     @staticmethod
-    def verify_reset_token(token):
-        s = Serializer(app.config['SECRET_KEY'])
+    def verify_reset_token(token, expires_sec=1200):
+        secret_key = app.config.get('SECRET_KEY')
+        s = Serializer(secret_key)
         try:
-            user_id = s.loads(token)['user_id']
-        except:
+            user_id = s.loads(token, salt=app.config['SECURITY_PASSWORD_SALT'], max_age=expires_sec)['user_id']
+        except Exception:
             return None
         return User.query.get(user_id)
     

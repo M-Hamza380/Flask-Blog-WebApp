@@ -19,11 +19,12 @@ def admin_login():
         admin_user = User.query.filter_by(email=form.admin_email.data).first()
         if admin_user is not None and admin_user.email == "tecdev74@gmail.com" and bcrypt.check_password_hash(admin_user.password, form.admin_password.data):
             login_user(admin_user)
-            flash('Login successful', category='success')
+            flash('Login successful in admin panel.', category='success')
             return redirect(url_for('views.admin_home'))
         else:
             flash('Incorrect email or password', category='error')
             return redirect(url_for('users.login'))
+        
     return render_template('admin/admin_login.html', title='Admin Login', form=form)
 
 
@@ -40,6 +41,9 @@ def admin_logout():
 @users.route('/admin-account', methods=['GET', 'POST'])
 @login_required
 def admin_account():
+    if not current_user.is_admin:
+        return redirect(url_for('users.admin-login'))
+
     form = UpdateAdminAccountForm()
     if form.validate_on_submit():
         if form.picture.data:
@@ -49,14 +53,18 @@ def admin_account():
                 flash(f'Error while saving the picture: {str(e)}', category='error')
                 return redirect(url_for('users.admin_account'))
             current_user.image_file = pic_file
+
         current_user.email = form.email.data
         try:
             db.session.commit()
         except Exception as e:
+            db.session.rollback()
             flash(f'Error while updating the account: {str(e)}', category='error')
             return redirect(url_for('users.account'))
+        
         flash('Your account has been updated!', category='success')
         return redirect(url_for('users.admin_account'))
+    
     elif request.method == 'GET':
         form.email.data = current_user.email
     try:
@@ -64,13 +72,12 @@ def admin_account():
     except Exception as e:
         flash(f'Error while generating the image file url: {str(e)}', category='error')
         image_file = None
+
     return render_template('admin/admin_account.html', title='Admin Account', image_file=image_file, form=form)
 
 
 @users.route("/register", methods=['GET', 'POST'])
 def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('views.home'))
     form = RegistrationForm()
     if form.validate_on_submit():
         try:
@@ -89,19 +96,19 @@ def register():
 
 @users.route('/login', methods=['GET', 'POST'])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('views.home'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user is None or not bcrypt.check_password_hash(user.password, form.password.data):
-            flash('Login unsuccessful. Please check email and password', category='error')
-            return render_template("login.html", title='Login', form=form)
-        
-        login_user(user, remember=form.remember.data)
-        next_page = request.args.get('next')
-        flash("You have been logged in!", category='success')
-        return redirect(next_page) if next_page else redirect(url_for('views.home'))
+        if user:
+            if bcrypt.check_password_hash(user.password, form.password.data):
+                login_user(user, remember=form.remember.data)
+                next_page = request.args.get('next')
+                flash("You have been logged in!", category='success')
+                return redirect(next_page) if next_page else redirect(url_for('views.home'))
+            else:
+                flash('Incorrect password, try again.)', category='error')
+        else:
+            flash('Email does not exist.)', category='error')
     
     return render_template("login.html", title='Login', form=form)
 
@@ -119,6 +126,9 @@ def logout():
 @users.route('/account', methods=['GET', 'POST'])
 @login_required
 def account():
+    if not current_user.is_authenticated:
+        return redirect(url_for('users.login'))
+
     form = UpdateAccountForm()
     if form.validate_on_submit():
         if form.picture.data:
@@ -149,8 +159,6 @@ def account():
 
 @users.route('/reset_password', methods=["GET", "POST"])
 def reset_request():
-    if current_user.is_authenticated:
-        return redirect(url_for('views.home'))
     form = RequestResetForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -166,8 +174,6 @@ def reset_request():
 
 @users.route('/reset_password/<token>', methods=["GET", "POST"])
 def reset_token(token):
-    if current_user.is_authenticated:
-        return redirect(url_for('views.home'))
     user = User.verify_reset_token(token)
     if not user:
         flash('That is an invalid or expired token', category='warning')
@@ -186,6 +192,7 @@ def reset_token(token):
 def change_password():
     if not current_user.is_authenticated:
         return redirect(url_for('users.login'))
+    
     form = ChangePasswordForm()
     if form.validate_on_submit():
         if not bcrypt.check_password_hash(current_user.password, form.old_password.data):

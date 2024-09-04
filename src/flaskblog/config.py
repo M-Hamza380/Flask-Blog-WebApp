@@ -5,6 +5,7 @@ config = dotenv_values(".env")
 
 class Config:
     SECRET_KEY = config.get("SECRET_KEY")
+    SECURITY_PASSWORD_SALT = config.get("SECURITY_PASSWORD_SALT")
     DB_NAME = config.get("DB_NAME")
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{DB_NAME}"
     MAIL_SERVER = 'smtp.googlemail.com'
