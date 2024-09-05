@@ -19,8 +19,9 @@ def admin_login():
         admin_user = User.query.filter_by(email=form.admin_email.data).first()
         if admin_user is not None and admin_user.email == "tecdev74@gmail.com" and bcrypt.check_password_hash(admin_user.password, form.admin_password.data):
             login_user(admin_user)
+            next_page = request.args.get('next')            
             flash('Login successful in admin panel.', category='success')
-            return redirect(url_for('views.admin_home'))
+            return redirect(next_page) if next_page else redirect(url_for('users.admin_home'))
         else:
             flash('Incorrect email or password', category='error')
             return redirect(url_for('users.login'))
@@ -41,9 +42,6 @@ def admin_logout():
 @users.route('/admin-account', methods=['GET', 'POST'])
 @login_required
 def admin_account():
-    if not current_user.is_admin:
-        return redirect(url_for('users.admin-login'))
-
     form = UpdateAdminAccountForm()
     if form.validate_on_submit():
         if form.picture.data:
@@ -106,9 +104,9 @@ def login():
                 flash("You have been logged in!", category='success')
                 return redirect(next_page) if next_page else redirect(url_for('views.home'))
             else:
-                flash('Incorrect password, try again.)', category='error')
+                flash('Incorrect password, try again!', category='error')
         else:
-            flash('Email does not exist.)', category='error')
+            flash('Email does not exist!', category='error')
     
     return render_template("login.html", title='Login', form=form)
 
@@ -121,14 +119,11 @@ def logout():
         return redirect(url_for('users.login'))
     except Exception as e:
         flash(f"An error occurred while logging out: {str(e)}", category='error')
-        return redirect(url_for('views.home'))
+        return redirect(url_for('views.index'))
 
 @users.route('/account', methods=['GET', 'POST'])
 @login_required
 def account():
-    if not current_user.is_authenticated:
-        return redirect(url_for('users.login'))
-
     form = UpdateAccountForm()
     if form.validate_on_submit():
         if form.picture.data:
@@ -189,10 +184,7 @@ def reset_token(token):
 
 @users.route('/change-password', methods=['GET', 'POST'])
 @login_required
-def change_password():
-    if not current_user.is_authenticated:
-        return redirect(url_for('users.login'))
-    
+def change_password():    
     form = ChangePasswordForm()
     if form.validate_on_submit():
         if not bcrypt.check_password_hash(current_user.password, form.old_password.data):

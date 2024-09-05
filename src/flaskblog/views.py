@@ -4,14 +4,20 @@ from flask_login import current_user
 views = Blueprint('views', __name__)
 
 @views.route('/')
-def home():
-    return render_template('users.login.html', title='Login')
+def index():
+    return render_template('index.html', title='Landing Page')
 
 
 @views.route('/about')
 def about():
     return render_template('about.html', title='About')
 
+@views.route('/home')
+def home():
+    if not current_user.is_authenticated:
+        return redirect(url_for('users.login'))
+    
+    return render_template('home.html', title='Home', user=current_user)
 
 @views.route('/users_dashboard')
 def dashboard():
