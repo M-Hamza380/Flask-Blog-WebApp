@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request
+from flask import Blueprint, render_template, flash, redirect, url_for, request, abort
 from flask_login import login_user, current_user, login_required, logout_user
 from src.flaskblog import db, bcrypt
 
@@ -6,10 +6,58 @@ from src.flaskblog.users.utils import save_picture, send_reset_email
 from src.flaskblog.models import User
 from src.flaskblog.users.forms import (LoginForm, RegistrationForm, UpdateAccountForm, 
                                        RequestResetForm, ResetPasswordForm, ChangePasswordForm,
-                                       AdminLoginForm, UpdateAdminAccountForm)
+                                       AdminLoginForm, UpdateAdminAccountForm, PostForm)
 
+from src.flaskblog.models import Post
 
 users = Blueprint('users', __name__)
+
+@users.route('/post/new', methods=['GET', 'POST'])
+@login_required
+def create_post():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(title=form.title.data, content=form.content.data, author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash('Your post has been created!', category='success')
+        return redirect(url_for('views.home'))
+    return render_template('create_post.html', Title='New Post', form=form, legend='New Post')
+
+@users.route('/post/<int:post_id>', methods=['GET', 'POST'])
+def post(post_id):
+    post = Post.query.get_or_404(post_id)
+    return render_template('post.html', title=post.title, post=post)
+
+@users.route('/post/<int:post_id>/update', methods=['GET', 'POST'])
+@login_required
+def update_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)
+    form = PostForm()
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.content = form.content.data
+        db.session.commit()
+        flash('Your post has been updated!', category='success')
+        return redirect(url_for('users.post', post_id=post.id))
+    elif request.method == 'GET':
+        form.title.data = post.title
+        form.content.data = post.content
+    return render_template('create_post.html', Title='Update Post', form=form, legend='Update Post')
+
+
+@users.route('/post/<int:post_id>/delete', methods=['POST'])
+@login_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)
+    db.session.delete(post)
+    db.session.commit()
+    flash('Your post has been deleted!', category='success')
+    return redirect(url_for('views.home'))
 
 
 @users.route('/admin-login', methods=['GET', 'POST'])

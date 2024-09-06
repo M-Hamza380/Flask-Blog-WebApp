@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import current_user
 
+from src.flaskblog.models import Post
+
 views = Blueprint('views', __name__)
 
 @views.route('/')
@@ -17,7 +19,8 @@ def home():
     if not current_user.is_authenticated:
         return redirect(url_for('users.login'))
     
-    return render_template('home.html', title='Home', user=current_user)
+    posts = Post.query.all()
+    return render_template('home.html', title='Home', user=current_user, posts=posts)
 
 @views.route('/users_dashboard')
 def dashboard():
