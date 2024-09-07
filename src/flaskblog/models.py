@@ -33,7 +33,7 @@ class User(db.Model, UserMixin):
         return s.dumps({'user_id': self.id}, salt=app.config['SECURITY_PASSWORD_SALT'])
 
     @staticmethod
-    def verify_reset_token(token, expires_sec=1200):
+    def verify_reset_token(token, expires_sec=600):
         secret_key = app.config.get('SECRET_KEY')
         s = Serializer(secret_key)
         try:

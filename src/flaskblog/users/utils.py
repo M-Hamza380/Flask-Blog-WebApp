@@ -4,6 +4,7 @@ from flask_mail import Message
 from flask import url_for
 
 from src.flaskblog import app, mail
+from src.flaskblog.users.logger import logger
 
 def save_picture(form_picture):
     if form_picture is None:
@@ -31,12 +32,20 @@ def save_picture(form_picture):
     return pic_file
 
 def send_reset_email(user):
-    token = user.get_reset_token()
-    msg = Message('Password Reset Request', sender='noreply@demo.com', recipients=[user.email])
-    msg.body = f'''To reset your password, visit the following link:
+    with app.app_context():
+        try:
+            token = user.get_reset_token()
+            reset_url = url_for('users.reset_token', token=token, _external=True)
+            msg = Message('Password Reset Request', sender=app.config['MAIL_DEFAULT_SENDER'], recipients=[user.email])
+            msg.body = f'''To reset your password, visit the following link:
 
-{url_for('users.reset_token', token=token, _external=True)}
+{reset_url}
 
-if you did not make this request then simply ignore this email and no changes will be made.
+You have only 10 minutes to complete this process. After that, you will have to request a new password reset.
+If you did not make this request then simply ignore this email and no changes will be made.
 '''
-    mail.send(msg)
+            mail.send(msg)
+            logger.info(f"Email sent to {user.email}")
+        except Exception as e:
+            logger.error(f"Failed to send password reset email: {e}")
+            raise e

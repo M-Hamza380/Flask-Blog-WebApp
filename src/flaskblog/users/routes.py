@@ -8,7 +8,9 @@ from src.flaskblog.users.forms import (LoginForm, RegistrationForm, UpdateAccoun
                                        RequestResetForm, ResetPasswordForm, ChangePasswordForm,
                                        AdminLoginForm, UpdateAdminAccountForm, PostForm)
 
+
 from src.flaskblog.models import Post
+from src.flaskblog.users.logger import logger
 
 users = Blueprint('users', __name__)
 
@@ -217,18 +219,36 @@ def reset_request():
 
 @users.route('/reset_password/<token>', methods=["GET", "POST"])
 def reset_token(token):
+    logger.info(f"Entered reset_token route.")
+
     user = User.verify_reset_token(token)
-    if not user:
-        flash('That is an invalid or expired token', category='warning')
+    if user:
+        logger.info(f'User found: {user.username}')
+    else:
+        logger.info('Invalid or expired token, redirecting to reset request.')
         return redirect(url_for('users.reset_request'))
+
     form = ResetPasswordForm()
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user.password = hashed_password
-        db.session.commit()
-        flash('Your password has been updated! You are now able to login.', category='success')
-        return redirect(url_for('users.login'))
-    return render_template('reset_token.html', title='Reset Password', form=form)
+
+    if request.method == 'POST':
+        logger.info("POST request received.")
+
+        if form.validate_on_submit():
+            logger.info('Form validated, attempting to reset password.')
+            try:
+                hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+                user.password = hashed_password                
+                db.session.commit()
+                logger.info('Password updated successfully in the database.')
+                return redirect(url_for('users.login'))
+            except Exception as e:
+                db.session.rollback()
+                logger.error(f'Error updating password: {e}')
+                return redirect(url_for('users.reset_token', token=token))
+        else:
+            logger.info(f"Form validation failed. Errors: {form.errors}")
+
+    return render_template('reset_token.html', title='Reset Password', form=form, token=token)
 
 @users.route('/change-password', methods=['GET', 'POST'])
 @login_required

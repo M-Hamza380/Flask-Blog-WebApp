@@ -1,7 +1,7 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import current_user
 
-from src.flaskblog.models import Post
+from src.flaskblog.models import Post, User
 
 views = Blueprint('views', __name__)
 
@@ -19,8 +19,21 @@ def home():
     if not current_user.is_authenticated:
         return redirect(url_for('users.login'))
     
-    posts = Post.query.all()
-    return render_template('home.html', title='Home', user=current_user, posts=posts)
+    page = request.args.get('page', 1, type=int)
+    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
+    return render_template('home.html', title='Home', posts=posts)
+
+@views.route('/user/<string:username>')
+def user_posts(username):
+    if not current_user.is_authenticated:
+        return redirect(url_for('users.login'))
+    
+    page = request.args.get('page', 1, type=int)
+    user = User.query.filter_by(username=username).first_or_404()
+    posts = Post.query.filter_by(author=user)\
+        .order_by(Post.date_posted.desc())\
+        .paginate(page=page, per_page=5)
+    return render_template('users_posts.html', title='User Posts', user=user, posts=posts)
 
 @views.route('/users_dashboard')
 def dashboard():
