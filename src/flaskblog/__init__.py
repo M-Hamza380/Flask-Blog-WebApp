@@ -4,6 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_admin import Admin
+# from flask_bootstrap import Bootstrap4Theme
 
 from src.flaskblog.users.logger import logger
 from src.flaskblog.config import Config
@@ -16,7 +18,7 @@ login_manager = LoginManager()
 login_manager.login_view = "users.login"
 login_manager.login_message_category = 'info'
 mail = Mail()
-
+# admin = Admin(app, name='flaskblog', theme=Bootstrap4Theme(swatch='cerulean'))
 
 def create_app(config_class=Config):
     try:
@@ -28,13 +30,18 @@ def create_app(config_class=Config):
         bcrypt.init_app(app)
         login_manager.init_app(app)
         mail.init_app(app)
+        # admin.init_app(app)
 
         with app.app_context():
             from .views import views
-            from src.flaskblog.users.routes import users
+            from ..flaskblog.users.admin.routes import admin
+            from src.flaskblog.users.main.routes import users
+            from ..flaskblog.users.posts.routes import posts
 
             app.register_blueprint(views, url_prefix='/')
+            app.register_blueprint(admin, url_prefix='/')
             app.register_blueprint(users, url_prefix='/')
+            app.register_blueprint(posts, url_prefix='/')
 
         logger.info('Exited into create_app function the app is successfully created.')
         return app
