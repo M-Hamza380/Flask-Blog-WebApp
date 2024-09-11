@@ -7,9 +7,9 @@ from src.flaskblog.models import User
 from src.flaskblog.users.forms import AdminLoginForm, UpdateAdminAccountForm
 
 
-admin = Blueprint('admin', __name__)
+admin_bp = Blueprint('admin_bp', __name__)
 
-@admin.route('/admin-login', methods=['GET', 'POST'])
+@admin_bp.route('/admin-login', methods=['GET', 'POST'])
 def admin_login():
     form = AdminLoginForm()
     if form.validate_on_submit():
@@ -26,7 +26,7 @@ def admin_login():
     return render_template('admin/admin_login.html', title='Admin Login', form=form)
 
 
-@admin.route("/admin-logout", methods=["GET"])
+@admin_bp.route("/admin-logout", methods=["GET"])
 @login_required
 def admin_logout():
     try:
@@ -36,7 +36,7 @@ def admin_logout():
         flash(f"An error occurred while logging out: {str(e)}", category='error')
         return redirect(url_for('views.admin_home'))
 
-@admin.route('/admin-account', methods=['GET', 'POST'])
+@admin_bp.route('/admin-account', methods=['GET', 'POST'])
 @login_required
 def admin_account():
     form = UpdateAdminAccountForm()
@@ -46,7 +46,7 @@ def admin_account():
                 pic_file = save_picture(form.picture.data)
             except Exception as e:
                 flash(f'Error while saving the picture: {str(e)}', category='error')
-                return redirect(url_for('admin.admin_account'))
+                return redirect(url_for('admin_bp.admin_account'))
             current_user.image_file = pic_file
 
         current_user.email = form.email.data
@@ -55,10 +55,10 @@ def admin_account():
         except Exception as e:
             db.session.rollback()
             flash(f'Error while updating the account: {str(e)}', category='error')
-            return redirect(url_for('admin.admin_account'))
+            return redirect(url_for('admin_bp.admin_account'))
         
         flash('Your account has been updated!', category='success')
-        return redirect(url_for('admin.admin_account'))
+        return redirect(url_for('admin_bp.admin_account'))
     
     elif request.method == 'GET':
         form.email.data = current_user.email

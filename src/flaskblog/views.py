@@ -37,7 +37,12 @@ def dashboard():
     if not current_user.is_authenticated:
         return redirect(url_for('users.login'))
     
-    return render_template('dashboard.html', title='Dashboard')
+    page = request.args.get('page', 1, type=int)
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    posts = Post.query.filter_by(author=user)\
+        .order_by(Post.date_posted.desc())\
+        .paginate(page=page, per_page=5)
+    return render_template('dashboard.html', title='Dashboard', posts=posts, user=user)
 
 @views.route('/admin-home')
 def admin_home():
@@ -51,4 +56,9 @@ def admin_dashboard():
     if not current_user.is_authenticated:
         return redirect(url_for('users.login'))
     
-    return render_template('admin/admin_dashboard.html', title='Admin Dashboard')
+    page = request.args.get('page', 1, type=int)
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    posts = Post.query.filter_by(author=user)\
+        .order_by(Post.date_posted.desc())\
+        .paginate(page=page, per_page=5)
+    return render_template('admin/admin_dashboard.html', title='Admin Dashboard', posts=posts, user=user)

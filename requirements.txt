@@ -6,6 +6,7 @@ email_validator
 flask-bcrypt
 Pillow
 flask-mail
-itsdangerous==2.0.1
+itsdangerous
 python-dotenv
 flask-admin
+flask_bootstrap

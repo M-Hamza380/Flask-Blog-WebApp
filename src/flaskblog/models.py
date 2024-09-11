@@ -53,14 +53,20 @@ class Role(db.Model):
         return f"Role: ('{self.name}')"
 
 class UserAdmin(ModelView):
-    column_list = ('id', 'username', 'email', 'image_file', 'earned_coins', 'purchased_coins', 'total_coins', 'role', )
-    column_searchable_list = ('username', 'email', 'books', 'role')
+    column_list = ('id', 'username', 'email', 'image_file', 'posts', 'role')
+    column_searchable_list = ('username', 'email', 'posts', 'role')
     column_filters = ('username', 'email')
-    form_excluded_columns = ('password',)
+    form_excluded_columns = ('password', 'posts')
 
 class RoleAdmin(ModelView):
     column_list = ('id', 'name')
     form_excluded_columns = ('users',)  
+
+class PostAdmin(ModelView):
+    column_list = ('id', 'title', 'date_posted', 'author')
+    column_searchable_list = ('title', 'content')
+    column_filters = ('title', 'date_posted')
+    form_excluded_columns = ('user_id',)
 
 class Post(db.Model):
     __tablename__ = 'posts'
