@@ -51,7 +51,7 @@ def create_app(config_class=Config):
 def create_database(app, config_class=Config):
     try:
         logger.info('Enter into create_database function and create the database.')
-        db_path = os.path.abspath(config_class.DB_NAME)
+        db_path = "./database"
         db_dir = os.path.dirname(db_path)
 
         if not os.path.exists(db_dir):

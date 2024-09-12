@@ -166,3 +166,4 @@ cython_debug/
 src/flaskblog/static/profile_pics/*
 sql-alchemy/*
 tests/*
+logs/*
