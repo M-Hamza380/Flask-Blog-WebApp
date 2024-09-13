@@ -1,10 +1,9 @@
 from flask import url_for, redirect
 from flask_login import UserMixin
 from flask_admin.contrib.sqla import ModelView
-from itsdangerous import URLSafeTimedSerializer as Serializer
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from src.flaskblog import db, login_manager, app
+from src.flaskblog import db, login_manager
 
 @login_manager.user_loader
 def user_load(user_id):
@@ -23,24 +22,29 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(90), unique=True, nullable=False)
     image_file = db.Column(db.String(90), nullable=False, default='default.jpg')
     password = db.Column(db.String(90), nullable=False)
+    password_reset_count = db.Column(db.Integer, nullable=False, default=0)
+    last_reset_request = db.Column(db.DateTime, default=None)
     posts = db.relationship('Post', backref='author', lazy=True)
 
-    def get_reset_token(self):
-        secret_key = app.config.get('SECRET_KEY')
-        if not isinstance(secret_key, str):
-            raise ValueError('SECRET_KEY should be a string')
-        s = Serializer(secret_key)
-        return s.dumps({'user_id': self.id}, salt=app.config['SECURITY_PASSWORD_SALT'])
+    def can_reset_password(self):
+        if self.last_reset_request is None:
+            return True
+        
+        one_day_ago = datetime.now() - timedelta(days=1)
 
-    @staticmethod
-    def verify_reset_token(token, expires_sec=600):
-        secret_key = app.config.get('SECRET_KEY')
-        s = Serializer(secret_key)
-        try:
-            user_id = s.loads(token, salt=app.config['SECURITY_PASSWORD_SALT'], max_age=expires_sec)['user_id']
-        except Exception:
-            return None
-        return User.query.get(user_id)
+        if self.last_reset_request < one_day_ago:
+            self.password_reset_count = 0
+            return True
+        
+        return self.password_reset_count < 3
+    
+    def increment_reset_count(self):
+        if self.last_reset_request is None or self.last_reset_request < datetime.now() - timedelta(days=1):
+            self.password_reset_count = 1
+        else:
+            self.password_reset_count += 1
+        
+        self.last_reset_request = datetime.now()
     
     def __repr__(self) -> str:
         return f"User: ('{self.username}', '{self.email}', '{self.image_file}') "

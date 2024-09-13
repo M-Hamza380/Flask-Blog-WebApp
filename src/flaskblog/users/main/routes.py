@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request
+from flask import Blueprint, render_template, flash, redirect, url_for, request, session
 from flask_login import login_user, current_user, login_required, logout_user
 from src.flaskblog import db, bcrypt
 
@@ -91,32 +91,41 @@ def account():
         image_file = None
     return render_template('account.html', title='Account', image_file=image_file, form=form)
 
-@users.route('/reset_password', methods=["GET", "POST"])
+@users.route('/reset-password', methods=["GET", "POST"])
 def reset_request():
     form = RequestResetForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
-            send_reset_email(user)
-            flash('An email has been sent with instructions to reset your password.', category='info')
-            return redirect(url_for('users.login'))
+            if user.can_reset_password():
+                user.increment_reset_count()
+                db.session.commit()
+                session['reset_email'] = user.email
+                flash('You can reset your password.', category='success')
+                return redirect(url_for('users.reset_token'))
+            else:
+                flash('You have exceeded the password reset limit for today. Please try again tomorrow.', category='warning')
         else:
-            flash('No account with that email was found.', 'warning')
-            return redirect(url_for('users.reset_request'))
+            flash('There is no account with that email. You must register first.', category='warning')
     return render_template('reset_request.html', title='Reset Request', form=form)
 
 
-@users.route('/reset_password/<token>', methods=["GET", "POST"])
-def reset_token(token):
+@users.route('/reset-password/confirm', methods=["GET", "POST"])
+def reset_token():
     logger.info(f"Entered reset_token route.")
 
-    user = User.verify_reset_token(token)
+    reset_email = session.get('reset_email')
+
+    if not reset_email:
+        return redirect(url_for('users.reset_request'))
+
+    user = User.query.filter_by(email=reset_email).first()
     if user:
         logger.info(f'User found: {user.username}')
     else:
-        logger.info('Invalid or expired token, redirecting to reset request.')
+        logger.info(f'The {user.username} have exceeded the password reset limit for today.')
         return redirect(url_for('users.reset_request'))
-
+    
     form = ResetPasswordForm()
 
     if request.method == 'POST':
@@ -129,15 +138,17 @@ def reset_token(token):
                 user.password = hashed_password                
                 db.session.commit()
                 logger.info('Password updated successfully in the database.')
+                flash('Your password has been updated! You are now able to log in', category='success')
+                session.pop('reset_email', None)
                 return redirect(url_for('users.login'))
             except Exception as e:
                 db.session.rollback()
                 logger.error(f'Error updating password: {e}')
-                return redirect(url_for('users.reset_token', token=token))
+                return redirect(url_for('users.reset_token'))
         else:
             logger.info(f"Form validation failed. Errors: {form.errors}")
 
-    return render_template('reset_token.html', title='Reset Password', form=form, token=token)
+    return render_template('reset_token.html', title='Reset Password', form=form)
 
 @users.route('/change-password', methods=['GET', 'POST'])
 @login_required

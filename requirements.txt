@@ -10,3 +10,11 @@ itsdangerous
 python-dotenv
 flask-admin
 flask_bootstrap
+awscli
+gunicorn  # Production-grade WSGI server
+pytest  # For testing
+pytest-flask # For flask-app-testing
+flake8  # For linting
+black  # For code formatting
+boto3  # AWS SDK for Python
+
