@@ -1,0 +1,38 @@
+# .flake8
+[flake8]
+max-line-length = 125
+extend-ignore = E203, E266, W503, E501
+max-complexity = 18
+select = B,C,E,F,W,T4,B9
+exclude = 
+    .git,
+    __pycache__,
+    docs/source/conf.py,
+    old,
+    build,
+    dist,
+    .myenv,
+    .dockerignore
+
+# pyproject.toml
+[tool.black]
+line-length = 125
+target-version = ['py39']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.nox
+  | \.pytest_cache
+  | \.ropeproject
+  | \.py_cache
+  | \.tox
+  | .\.myenv
+  | build
+  | dist
+)/
+'''

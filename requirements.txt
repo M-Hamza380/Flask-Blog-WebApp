@@ -17,4 +17,6 @@ pytest-flask # For flask-app-testing
 flake8  # For linting
 black  # For code formatting
 boto3  # AWS SDK for Python
+pre-commit 
+isort
 

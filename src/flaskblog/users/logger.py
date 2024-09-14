@@ -1,6 +1,6 @@
+import logging
 import os
 import sys
-import logging
 from datetime import datetime
 
 # Step 1: Create logs directory
@@ -8,30 +8,32 @@ log_dir = "logs"
 os.makedirs(log_dir, exist_ok=True)
 
 # Step 2: Get the current day name (e.g., Monday, Tuesday) and create a directory
-current_day = datetime.now().strftime('%A')
+current_day = datetime.now().strftime("%A")
 day_dir = os.path.join(log_dir, current_day)
 os.makedirs(day_dir, exist_ok=True)
 
+
 # Function to create a directory with the given consistent timestamp
 def create_directory_with_timestamp(base_time):
-    timestamp = base_time.strftime('%d_%m_%Y_%H_%M')  # Generate the timestamp once
+    timestamp = base_time.strftime("%d_%m_%Y_%H_%M")  # Generate the timestamp once
     timestamp_dir = os.path.join(day_dir, f"Latest_{timestamp}")
     os.makedirs(timestamp_dir, exist_ok=True)
     return timestamp_dir
+
 
 # Step 3: Generate base timestamp and directory
 base_time = datetime.now()
 timestamp_dir = create_directory_with_timestamp(base_time)
 
 # Step 4: Define paths for both logs in the same directory
-info_log_filepath = os.path.join(timestamp_dir, 'info.log')
-error_log_filepath = os.path.join(timestamp_dir, 'error.log')
+info_log_filepath = os.path.join(timestamp_dir, "info.log")
+error_log_filepath = os.path.join(timestamp_dir, "error.log")
 
 # Step 5: Set up logging format
 logs_format = "[ [%(asctime)s] : %(name)s : %(levelname)s : %(module)s : %(message)s ]"
 
 # Step 6: Set up logger and prevent duplicate handlers
-logger = logging.getLogger('flaskblog')
+logger = logging.getLogger("flaskblog")
 logger.setLevel(logging.INFO)
 
 if not logger.handlers:  # Prevent adding multiple handlers
@@ -53,4 +55,3 @@ if not logger.handlers:  # Prevent adding multiple handlers
     logger.addHandler(info_handler)
     logger.addHandler(error_handler)
     logger.addHandler(console_handler)
-

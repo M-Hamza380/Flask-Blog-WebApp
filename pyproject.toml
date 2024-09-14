@@ -1,0 +1,28 @@
+# pyproject.toml
+
+# Build system configuration
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# Project metadata
+[project]
+name = "flaskblog"
+version = "0.0.1"
+description = "It is a blog website."
+
+# Tool-specific for black configurations
+[tool.black]
+line-length = 125
+target-version = ['py39']
+
+# Tool-specific for isort configurations
+[tool.isort]
+profile = "black"
+py_version=39
+skip = [".gitignore", ".dockerignore", "requirements.txt", "pyproject.toml", ".myenv"]
+
+# Tool-specific for flake8 configurations
+[tool.flake8]
+max-line-length = 125  # or any length you prefer
+extend-ignore = ["E203", "E266", "W503", "E501"]

@@ -1,7 +1,11 @@
-import os, logging
+import logging
+import os
 from pathlib import Path
 
-logging.basicConfig(level=logging.INFO, format="[ [%(asctime)s] : %(name)s : %(levelname)s : %(module)s : %(message)s ]")
+logging.basicConfig(
+    level=logging.INFO,
+    format="[ [%(asctime)s] : %(name)s : %(levelname)s : %(module)s : %(message)s ]",
+)
 
 Project_Name = "flaskblog"
 
@@ -36,7 +40,7 @@ list_of_files = [
     f"src/{Project_Name}/config.py",
     f"src/{Project_Name}/models.py",
     "main.py",
-    "requirements.txt"
+    "requirements.txt",
 ]
 
 for filepath in list_of_files:
@@ -47,9 +51,9 @@ for filepath in list_of_files:
     if file_dir != "":
         os.makedirs(file_dir, exist_ok=True)
         logging.info(f"Creating directory: {file_dir} for the file: {file_name}")
-    
+
     if (not os.path.exists(file_path)) or (os.path.getsize(file_path) == 0):
-        with open(file_path, 'w') as f:
+        with open(file_path, "w") as f:
             pass
             logging.info(f"Creating empty file: {file_path}")
     else:
