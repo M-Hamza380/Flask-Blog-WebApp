@@ -50,7 +50,7 @@ def create_app(config_class=Config):
         raise e
 
 
-def create_database(app, config_class=Config):
+def create_database(app):
     try:
         logger.info("Enter into create_database function.")
         db_path = "./database"

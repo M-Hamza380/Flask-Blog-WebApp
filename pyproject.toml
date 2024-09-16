@@ -2,14 +2,29 @@
 
 # Build system configuration
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=42", "wheel", "build"]
 build-backend = "setuptools.build_meta"
 
 # Project metadata
 [project]
 name = "flaskblog"
 version = "0.0.1"
-description = "It is a blog website."
+description = "A simple Flask blog website with end-to-end development and deployment."
+authors = [
+    { name = "Muhammad Hamza Anjum", email = "hamza.anjum380@gmail.com" }
+]
+readme = "README.md"  # If you have a README.md file
+keywords = ["flask", "blog", "webapp"]
+classifiers = [
+    "Programming Language :: Python :: 3.9",
+    "Framework :: Flask",
+]
+requires-python = ">=3.9"
+
+# Optional dependencies (for testing, linting, etc.)
+[project.optional-dependencies]
+testing = ["pytest", "pytest-flask"]
+linting = ["flake8", "black", "isort"]
 
 # Tool-specific for black configurations
 [tool.black]
@@ -19,10 +34,12 @@ target-version = ['py39']
 # Tool-specific for isort configurations
 [tool.isort]
 profile = "black"
-py_version=39
+py_version = 39
 skip = [".gitignore", ".dockerignore", "requirements.txt", "pyproject.toml", ".myenv"]
 
 # Tool-specific for flake8 configurations
 [tool.flake8]
-max-line-length = 125  # or any length you prefer
+max-line-length = 125
+py_version = 39
 extend-ignore = ["E203", "E266", "W503", "E501"]
+

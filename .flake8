@@ -13,26 +13,3 @@ exclude =
     dist,
     .myenv,
     .dockerignore
-
-# pyproject.toml
-[tool.black]
-line-length = 125
-target-version = ['py39']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  # directories
-  \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.nox
-  | \.pytest_cache
-  | \.ropeproject
-  | \.py_cache
-  | \.tox
-  | .\.myenv
-  | build
-  | dist
-)/
-'''

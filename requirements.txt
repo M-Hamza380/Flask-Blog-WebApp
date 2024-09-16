@@ -19,4 +19,5 @@ black  # For code formatting
 boto3  # AWS SDK for Python
 pre-commit 
 isort
+build
 

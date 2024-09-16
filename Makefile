@@ -6,28 +6,37 @@ install:
 
 # Run the Flask application
 run:
-		flask run
+		python main.py
 
 # Run tests using pytest
 test:
-		pytest
-
-# Lint code using flake8
-lint:
-		flake8 src/
+		pytest tests/
 
 # Format code using black
 format:
-		black src/
+		black src/ tests/
 
 # Sort imports using isort
 isort:
-		isort src/
+		isort src/ tests/ --verbose
 
-# Run pre-commit hooks
+# Lint code using flake8
+lint:
+		flake8 src/ tests/ --verbose
+
+# clean pre-commit hooks
+pre-commit-clean:
+		pre-commit clean
+
+# uninstall pre-commit hooks
+pre-commit-uninstall:
+		pre-commit uninstall
+
+# install pre-commit hooks
 pre-commit-install:
 		pre-commit install
 
+# run pre-commit hooks
 pre-commit-run:
 		pre-commit run --all-files
 
