@@ -1,8 +1,8 @@
 import pytest
 
-from flaskblog import create_app, db
+from flaskblog import bcrypt, create_app, db
+from flaskblog.config import TestingConfig
 from flaskblog.models import Post, User
-from src.flaskblog.config import TestingConfig
 
 
 @pytest.fixture(scope="module")
@@ -22,8 +22,10 @@ def init_database(test_client):
     db.create_all()
 
     # Insert user data
-    user1 = User(username="patkennedy", email="patkennedy79@gmail.com", password="FlaskIsAwesome")
-    user2 = User(username="kennedypat", email="kennedypat@gmail.com", password="PaSsWoRd123")
+    user1 = User(
+        username="patkennedy", email="patkennedy79@gmail.com", password=bcrypt.generate_password_hash("FlaskIsAwesome")
+    )
+    user2 = User(username="kennedypat", email="kennedypat@gmail.com", password=bcrypt.generate_password_hash("PaSsWoRd123"))
     db.session.add(user1)
     db.session.add(user2)
 
@@ -45,6 +47,6 @@ def init_database(test_client):
     assert post1.author == user1
     assert post2.author == user2
 
-    yield init_database  # this is where the testing happens!
+    yield db  # this is where the testing happens!
 
     db.drop_all()

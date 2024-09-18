@@ -4,7 +4,7 @@ from flask import redirect, url_for
 from flask_admin.contrib.sqla import ModelView
 from flask_login import UserMixin
 
-from src.flaskblog import db, login_manager
+from flaskblog import db, login_manager
 
 
 @login_manager.user_loader

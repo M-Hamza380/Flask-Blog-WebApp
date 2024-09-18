@@ -10,7 +10,8 @@ run:
 
 # Run tests using pytest
 test:
-		pytest tests/
+		pytest -v tests/
+
 
 # Format code using black
 format:

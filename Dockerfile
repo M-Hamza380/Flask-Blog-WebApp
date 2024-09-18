@@ -1,8 +1,18 @@
 FROM python:3.9-slim
-WORKDIR /app
-ENV FLASK_APP "main.py"
-ENV FLASK_RUN_HOST "0.0.0.0"
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-CMD ["python3", "main.py"]
+
+ENV PYTHONUNBUFFERED 1
+
+WORKDIR /blogcode
+
+COPY requirements.txt /blogcode
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY src/flaskblog /blogcode/flaskblog
+
+ENV FLASK_APP=flaskblog
+ENV FLASK_ENV=production
+
+EXPOSE 5000
+
+CMD python3 main.py

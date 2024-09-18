@@ -5,6 +5,7 @@ repos:
     - id: isort
       name: isort (Python import sorter)
       language_version: python3.9
+      args: ["--profile", "black", "--filter-files", "--apply"]
 
 -   repo: https://github.com/psf/black
     rev: 22.6.0
